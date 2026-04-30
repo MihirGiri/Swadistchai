@@ -245,7 +245,7 @@ export default function Navbar() {
             initial={{ y: 0, opacity: 1 }}
             exit={{ y: -40, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-b border-primary/30 py-2 pointer-events-none"
+            className="fixed top-0 left-0 right-0 z-50 h-10 flex flex-col justify-center bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-b border-primary/30 pointer-events-none"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <AnimatePresence mode="wait">
