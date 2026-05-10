@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import { fileURLToPath } from "url";
+import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.js";
 import wishlistRoutes from "./routes/wishlist.js";
@@ -59,6 +60,26 @@ const connectMongoDB = async (retries = 5) => {
         family: 4 // Force IPv4 to fix DNS ECONNREFUSED issues on Windows
       });
       console.log("✅ MongoDB connected");
+      
+      // Seed default admin user if it doesn't exist
+      try {
+        const adminExists = await User.findOne({ email: "admin@tealeaf.com" });
+        if (!adminExists) {
+          const newAdmin = new User({
+            name: "Admin",
+            email: "admin@tealeaf.com",
+            password: "Tealeaf@Admin831013",
+            role: "admin",
+            phone: "+91-1234567890",
+            address: "TeaLeaf HQ, India",
+          });
+          await newAdmin.save();
+          console.log("✅ Default Admin user created on startup!");
+        }
+      } catch (seedErr) {
+        console.error("❌ Error seeding admin:", seedErr.message);
+      }
+      
       return;
     } catch (err) {
       console.error(`❌ Attempt ${i + 1} failed:`, err.message);
