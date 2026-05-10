@@ -53,7 +53,7 @@ export default function ManageHeroSlides() {
  try {
  setLoading(true);
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/hero-slides/admin/all",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/hero-slides/admin/all`,
  {
  headers: {
  Authorization: `Bearer ${token}`,
@@ -90,7 +90,7 @@ export default function ManageHeroSlides() {
  setIsUploading(true);
  setError("");
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/upload",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/upload`,
  {
  method: "POST",
  headers: {
@@ -137,8 +137,8 @@ export default function ManageHeroSlides() {
  try {
  const method = editingSlide ? "PUT" : "POST";
  const url = editingSlide
- ? `https://tealeafluxe.onrender.com/api/hero-slides/${editingSlide._id}`
- : "https://tealeafluxe.onrender.com/api/hero-slides";
+ ? `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/hero-slides/${editingSlide._id}`
+ : `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/hero-slides`;
 
  const response = await fetch(url, {
  method,
@@ -182,7 +182,7 @@ export default function ManageHeroSlides() {
 
  try {
  const response = await fetch(
- `https://tealeafluxe.onrender.com/api/hero-slides/${slideId}`,
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/hero-slides/${slideId}`,
  {
  method: "DELETE",
  headers: {

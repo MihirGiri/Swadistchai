@@ -22,7 +22,7 @@ export default function Chatbot() {
 
   useEffect(() => {
     // Fetch products so the agent knows what we have
-    fetch("https://tealeafluxe.onrender.com/api/products")
+    fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setProducts(data.products);
@@ -46,7 +46,7 @@ export default function Chatbot() {
       setAwaitingOrderNumber(false);
       try {
         const response = await fetch(
-          "https://tealeafluxe.onrender.com/api/orders/track",
+          `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders/track`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -440,7 +440,7 @@ export default function Home() {
  try {
  setSlidesLoading(true);
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/hero-slides",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/hero-slides`,
  );
  const data = await response.json();
  if (data.success && data.slides && data.slides.length > 0) {
@@ -462,7 +462,7 @@ export default function Home() {
  try {
  setLoading(true);
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/products",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`,
  );
  const data = await response.json();
  if (data.success && data.products) {

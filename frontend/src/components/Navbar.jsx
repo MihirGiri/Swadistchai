@@ -137,7 +137,7 @@ export default function Navbar() {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          "https://tealeafluxe.onrender.com/api/products",
+          `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`,
         );
         const data = await response.json();
         if (data.success && data.products) {
@@ -151,7 +151,7 @@ export default function Navbar() {
     const fetchOffers = async () => {
       try {
         const response = await fetch(
-          "https://tealeafluxe.onrender.com/api/banner-offers",
+          `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/banner-offers`,
         );
         const data = await response.json();
         if (data.success && data.offers && data.offers.length > 0) {

@@ -19,7 +19,7 @@ export default function ManageAdmins() {
  const fetchAdmins = async () => {
  try {
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/customers?role=admin",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers?role=admin`,
  {
  headers: { Authorization: `Bearer ${token}` },
  },
@@ -44,7 +44,7 @@ export default function ManageAdmins() {
 
  try {
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/customers/admin",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers/admin`,
  {
  method: "POST",
  headers: {
@@ -78,7 +78,7 @@ export default function ManageAdmins() {
 
  try {
  const response = await fetch(
- `https://tealeafluxe.onrender.com/api/customers/${adminId}`,
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers/${adminId}`,
  {
  method: "DELETE",
  headers: { Authorization: `Bearer ${token}` },

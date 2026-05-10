@@ -136,7 +136,7 @@ export default function Checkout() {
  };
 
  const response = await fetch(
- "https://tealeafluxe.onrender.com/api/orders",
+ `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders`,
  {
  method: "POST",
  headers: {
