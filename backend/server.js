@@ -15,6 +15,7 @@ import heroSlidesRoutes from "./routes/heroSlides.js";
 import uploadRoutes from "./routes/upload.js";
 import bannerOffersRoutes from "./routes/bannerOffers.js";
 import settingsRoutes from "./routes/settings.js";
+import siteReviewsRoutes from "./routes/siteReviews.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,6 +110,7 @@ app.use("/api/hero-slides", heroSlidesRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/banner-offers", bannerOffersRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/site-reviews", siteReviewsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

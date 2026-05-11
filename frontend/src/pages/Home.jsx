@@ -143,19 +143,42 @@ function CategoryCard({ cat, index, count }) {
 function TestimonialsSection() {
  const [idx, setIdx] = useState(0);
  const [auto, setAuto] = useState(true);
+ const [activeTestimonials, setActiveTestimonials] = useState(testimonials);
+
+ useEffect(() => {
+   const fetchReviews = async () => {
+     try {
+       const res = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews`);
+       const data = await res.json();
+       if (data.success && data.reviews.length > 0) {
+         setActiveTestimonials(data.reviews.map(r => ({
+           id: r._id,
+           quote: r.comment,
+           name: r.name,
+           location: "Verified Customer",
+           avatar: r.name.charAt(0).toUpperCase(),
+           rating: r.rating
+         })));
+       }
+     } catch (err) {
+       console.error("Failed to load site reviews:", err);
+     }
+   };
+   fetchReviews();
+ }, []);
 
  useEffect(() => {
  if (!auto) return;
  const t = setInterval(
- () => setIdx((c) => (c + 1) % testimonials.length),
+ () => setIdx((c) => (c + 1) % activeTestimonials.length),
  4500,
  );
  return () => clearInterval(t);
- }, [auto]);
+ }, [auto, activeTestimonials.length]);
 
  const go = (dir) => {
  setAuto(false);
- setIdx((c) => (c + dir + testimonials.length) % testimonials.length);
+ setIdx((c) => (c + dir + activeTestimonials.length) % activeTestimonials.length);
  };
 
  return (
@@ -176,25 +199,25 @@ function TestimonialsSection() {
  transition={{ duration: 0.45 }}
  whileHover={{ y: -3, boxShadow: "0 16px 36px rgba(0,0,0,0.10)" }}
  className="bg-card rounded-2xl p-8 md:p-12 border border-border shadow-card text-center cursor-default"
- data-ocid={`testimonial-${testimonials[idx].id}`}
+ data-ocid={`testimonial-${activeTestimonials[idx].id}`}
  >
  <div className="flex justify-center gap-0.5 mb-6">
  {[1, 2, 3, 4, 5].map((s) => (
- <Star key={s} size={18} className="text-accent fill-accent" />
+ <Star key={s} size={18} className={activeTestimonials[idx].rating >= s || !activeTestimonials[idx].rating ? "text-accent fill-accent" : "text-muted-foreground/30"} />
  ))}
  </div>
  <blockquote className="font-display italic text-lg md:text-xl text-foreground leading-relaxed mb-8">
- &ldquo;{testimonials[idx].quote}&rdquo;
+ &ldquo;{activeTestimonials[idx].quote}&rdquo;
  </blockquote>
  <div className="flex flex-col items-center gap-2">
  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-display font-semibold text-base">
- {testimonials[idx].avatar}
+ {activeTestimonials[idx].avatar}
  </div>
  <p className="font-semibold text-sm text-foreground">
- {testimonials[idx].name}
+ {activeTestimonials[idx].name}
  </p>
  <p className="text-xs text-muted-foreground">
- {testimonials[idx].location}
+ {activeTestimonials[idx].location}
  </p>
  </div>
  </motion.div>
@@ -212,7 +235,7 @@ function TestimonialsSection() {
  <ChevronLeft size={18} />
  </button>
  <div className="flex gap-1.5">
- {testimonials.map((t, i) => (
+ {activeTestimonials.map((t, i) => (
  <button
  key={t.id}
  type="button"
