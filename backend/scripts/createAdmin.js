@@ -10,7 +10,7 @@ const createAdminUser = async () => {
     await mongoose.connect(process.env.MONGODB_URI, { family: 4 });
     console.log("✅ MongoDB connected");
 
-    const newPassword = "Tealeaf@Admin831013";
+    const newPassword = "Mihir@832302";
 
     // Check if admin already exists
     let adminUser = await User.findOne({ email: "admin@tealeaf.com" });
