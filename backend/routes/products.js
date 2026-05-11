@@ -10,14 +10,20 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "dkunbeire",
+  api_key: process.env.CLOUDINARY_API_KEY || "347826449724545",
+  api_secret: process.env.CLOUDINARY_API_SECRET || "RtqcEHTGwQiWwxEOyXgOWNSD5-Y"
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'swadistchai_products',
+    allowed_formats: ['jpg', 'png', 'webp', 'jpeg', 'gif']
   },
 });
 
@@ -56,7 +62,7 @@ router.post("/upload/image", authenticateToken, isAdmin, upload.single("image"),
       });
     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const imageUrl = req.file.path;
 
     res.json({
       success: true,
@@ -83,8 +89,8 @@ router.post("/upload/multiple", authenticateToken, isAdmin, upload.array("images
     }
 
     const imageUrls = req.files.map(file => ({
-      url: `/uploads/${file.filename}`,
-      filename: file.filename,
+      url: file.path,
+      filename: file.filename || file.originalname,
     }));
 
     res.json({
