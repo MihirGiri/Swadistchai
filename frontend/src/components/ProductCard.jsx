@@ -40,12 +40,21 @@ export default function ProductCard({ product, index = 0 }) {
 
   // Support both local products (id) and MongoDB products (_id)
   const productId = product._id || product.id;
+
+  const checkIsWishlisted = (wishlistArray, pid) => {
+    if (!wishlistArray || !Array.isArray(wishlistArray)) return false;
+    return wishlistArray.some(item => {
+      const itemId = typeof item === 'object' ? (item._id || item.id) : item;
+      return String(itemId) === String(pid);
+    });
+  };
+
   const [isWishlisted, setIsWishlisted] = useState(
-    user?.wishlist?.includes(productId) || false
+    checkIsWishlisted(user?.wishlist, productId)
   );
 
   useEffect(() => {
-    setIsWishlisted(user?.wishlist?.includes(productId) || false);
+    setIsWishlisted(checkIsWishlisted(user?.wishlist, productId));
   }, [user?.wishlist, productId]);
 
   const toggleWishlist = async (e) => {

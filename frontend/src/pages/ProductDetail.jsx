@@ -45,12 +45,20 @@ const getImageUrl = (imagePath) => {
   const [loading, setLoading] = useState(true);
 
   // Wishlist state
+  const checkIsWishlisted = (wishlistArray, pid) => {
+    if (!wishlistArray || !Array.isArray(wishlistArray)) return false;
+    return wishlistArray.some(item => {
+      const itemId = typeof item === 'object' ? (item._id || item.id) : item;
+      return String(itemId) === String(pid);
+    });
+  };
+
   const [isWishlisted, setIsWishlisted] = useState(
-    user?.wishlist?.includes(id) || false
+    checkIsWishlisted(user?.wishlist, id)
   );
 
   useEffect(() => {
-    setIsWishlisted(user?.wishlist?.includes(id) || false);
+    setIsWishlisted(checkIsWishlisted(user?.wishlist, id));
   }, [user?.wishlist, id]);
 
   const toggleWishlist = async (e) => {
