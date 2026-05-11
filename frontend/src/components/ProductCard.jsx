@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=600&q=80&auto=format&fit=crop";
@@ -32,19 +33,56 @@ function StarRating({ rating, count }) {
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
   // Support both local products (id) and MongoDB products (_id)
   const productId = product._id || product.id;
+  const [isWishlisted, setIsWishlisted] = useState(
+    user?.wishlist?.includes(productId) || false
+  );
+
+  const toggleWishlist = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!token) {
+      navigate({ to: "/login" });
+      return;
+    }
+
+    const previousState = isWishlisted;
+    setIsWishlisted(!isWishlisted);
+
+    try {
+      const url = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
+      const response = await fetch(!isWishlisted ? url : `${url}/${productId}`, {
+        method: !isWishlisted ? "POST" : "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: !isWishlisted ? JSON.stringify({ productId }) : null,
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      console.error("Wishlist error:", error);
+      setIsWishlisted(previousState);
+    }
+  };
 
   // Helper to construct full image URL
   const getImageUrl = (imagePath) => {
     if (!imagePath) return FALLBACK_IMAGE;
     if (imagePath.startsWith("http")) return imagePath; // Already full URL
     if (imagePath.startsWith("/uploads/")) {
-      return `https://tealeafluxe.onrender.com${imagePath}`; // Prepend backend URL
+      return `https://swadistchai-backend.onrender.com${imagePath}`; // Prepend backend URL
     }
     return imagePath; // Keep as is for static data
   };
@@ -66,6 +104,14 @@ export default function ProductCard({ product, index = 0 }) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
+        {/* Wishlist Button */}
+        <button
+          onClick={toggleWishlist}
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-background transition-colors-smooth"
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart size={16} className={isWishlisted ? "fill-red-500 text-red-500" : ""} />
+        </button>
         {/* Image container with fixed aspect ratio */}
         <div className="relative aspect-square bg-secondary/40 overflow-hidden">
           {/* Primary image */}
