@@ -518,41 +518,11 @@ const getImageUrl = (imagePath) => {
  </div>
  )}
 
- <div className="mt-8 bg-muted/20 rounded-xl p-5 border border-border">
- <h4 className="font-semibold text-sm mb-3">Write a Review</h4>
- {reviewSuccess ? (
- <p className="text-green-600 text-sm font-medium p-3 bg-green-500/10 rounded-lg">{reviewSuccess}</p>
- ) : (
- <form onSubmit={handleReviewSubmit} className="space-y-3">
- {reviewError && <p className="text-red-500 text-xs">{reviewError}</p>}
- <div className="flex gap-1">
- {[1, 2, 3, 4, 5].map((star) => (
- <button
- key={star}
- type="button"
- onClick={() => setReviewRating(star)}
- className={`text-xl ${reviewRating >= star ? "text-accent" : "text-muted-foreground/30"}`}
- >
- ★
- </button>
- ))}
- </div>
- <textarea
- required
- value={reviewComment}
- onChange={(e) => setReviewComment(e.target.value)}
- placeholder="Share your experience (must have purchased)..."
- className="w-full bg-card border border-border rounded-lg p-3 text-sm min-h-[80px] focus:outline-none focus:border-primary/50"
- />
- <button
- type="submit"
- disabled={submittingReview}
- className="px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-smooth disabled:opacity-50"
- >
- {submittingReview ? "Submitting..." : "Submit Review"}
- </button>
- </form>
- )}
+ <div className="mt-8 bg-muted/20 rounded-xl p-5 border border-border text-center">
+ <h4 className="font-semibold text-sm mb-2">Have you bought this tea?</h4>
+ <p className="text-xs text-muted-foreground mb-4">
+ You can write a review from your <Link to="/my-orders" className="text-primary hover:underline font-medium">Orders</Link> page after the product is delivered.
+ </p>
  </div>
  </motion.div>
  )}

@@ -26,6 +26,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MyOrders from "./pages/MyOrders";
 import ProductDetail from "./pages/ProductDetail";
+import Profile from "./pages/Profile";
 import Shop from "./pages/Shop";
 import Signup from "./pages/Signup";
 import Wishlist from "./pages/Wishlist";
@@ -162,6 +163,11 @@ const myOrdersRoute = createRoute({
   path: "/my-orders",
   component: MyOrders,
 });
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile",
+  component: Profile,
+});
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -186,6 +192,7 @@ const routeTree = rootRoute.addChildren([
   wishlistRoute,
   checkoutRoute,
   myOrdersRoute,
+  profileRoute,
 ]);
 
 const router = createRouter({ routeTree });

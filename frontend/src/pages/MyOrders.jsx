@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Loader2, Package, SearchX } from "lucide-react";
-import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowLeft, Loader2, Package, SearchX, Star, X } from "lucide-react";
 import SectionContainer from "../components/SectionContainer";
 import { useAuth } from "../context/AuthContext";
 
@@ -11,6 +12,15 @@ export default function MyOrders() {
  const [orders, setOrders] = useState([]);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState("");
+
+ // Review state
+ const [selectedProduct, setSelectedProduct] = useState(null);
+ const [showReviewModal, setShowReviewModal] = useState(false);
+ const [reviewRating, setReviewRating] = useState(5);
+ const [reviewComment, setReviewComment] = useState("");
+ const [submittingReview, setSubmittingReview] = useState(false);
+ const [reviewError, setReviewError] = useState("");
+ const [reviewSuccess, setReviewSuccess] = useState("");
 
  useEffect(() => {
  if (!authLoading && !user) {
@@ -91,6 +101,48 @@ export default function MyOrders() {
  default:
  return "bg-muted text-foreground";
  }
+ };
+
+ const openReviewModal = (productId, productName) => {
+   setSelectedProduct({ id: productId, name: productName });
+   setReviewRating(5);
+   setReviewComment("");
+   setReviewError("");
+   setReviewSuccess("");
+   setShowReviewModal(true);
+ };
+
+ const handleReviewSubmit = async (e) => {
+   e.preventDefault();
+   if (!selectedProduct) return;
+   
+   setSubmittingReview(true);
+   setReviewError("");
+   setReviewSuccess("");
+   
+   try {
+     const response = await fetch(
+       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${selectedProduct.id}/reviews`,
+       {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`,
+         },
+         body: JSON.stringify({ rating: reviewRating, comment: reviewComment }),
+       }
+     );
+     
+     const data = await response.json();
+     if (!data.success) throw new Error(data.message);
+     
+     setReviewSuccess("Review submitted successfully! It will appear after admin approval.");
+     setTimeout(() => setShowReviewModal(false), 3000);
+   } catch (error) {
+     setReviewError(error.message || "Failed to submit review");
+   } finally {
+     setSubmittingReview(false);
+   }
  };
 
  if (authLoading) return null;
@@ -221,6 +273,14 @@ export default function MyOrders() {
  <p className="font-medium text-foreground">
  ₹{item.price.toLocaleString("en-IN")}
  </p>
+ {order.status === "delivered" && item.product && (
+   <button
+     onClick={() => openReviewModal(item.product._id || item.product.id, item.product.name)}
+     className="mt-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-lg"
+   >
+     Leave a Review
+   </button>
+ )}
  </div>
  </div>
  ))}
@@ -231,6 +291,88 @@ export default function MyOrders() {
  </div>
  )}
  </SectionContainer>
+
+ {/* Review Modal */}
+ <AnimatePresence>
+   {showReviewModal && (
+     <motion.div
+       initial={{ opacity: 0 }}
+       animate={{ opacity: 1 }}
+       exit={{ opacity: 0 }}
+       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+     >
+       <motion.div
+         initial={{ scale: 0.95 }}
+         animate={{ scale: 1 }}
+         exit={{ scale: 0.95 }}
+         className="bg-card rounded-2xl border border-border p-6 max-w-md w-full shadow-xl relative"
+       >
+         <button
+           onClick={() => setShowReviewModal(false)}
+           className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+         >
+           <X size={20} />
+         </button>
+         <h2 className="font-display text-xl font-semibold mb-2 text-foreground">Write a Review</h2>
+         <p className="text-sm text-muted-foreground mb-6">For: <span className="font-medium text-foreground">{selectedProduct?.name}</span></p>
+
+         {reviewSuccess ? (
+           <div className="bg-green-500/10 text-green-600 p-4 rounded-xl text-sm font-medium">
+             {reviewSuccess}
+           </div>
+         ) : (
+           <form onSubmit={handleReviewSubmit} className="space-y-4">
+             {reviewError && <p className="text-red-500 text-xs bg-red-500/10 p-2 rounded-lg">{reviewError}</p>}
+             
+             <div>
+               <label className="block text-sm font-medium text-foreground mb-2">Rating</label>
+               <div className="flex gap-2">
+                 {[1, 2, 3, 4, 5].map((star) => (
+                   <button
+                     key={star}
+                     type="button"
+                     onClick={() => setReviewRating(star)}
+                     className={`p-1 transition-transform hover:scale-110 ${reviewRating >= star ? "text-accent" : "text-muted-foreground/30"}`}
+                   >
+                     <Star className={reviewRating >= star ? "fill-current" : ""} />
+                   </button>
+                 ))}
+               </div>
+             </div>
+
+             <div>
+               <label className="block text-sm font-medium text-foreground mb-2">Your Review</label>
+               <textarea
+                 required
+                 value={reviewComment}
+                 onChange={(e) => setReviewComment(e.target.value)}
+                 placeholder="Share your experience with this tea..."
+                 className="w-full bg-muted/30 border border-border rounded-lg p-3 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/50"
+               />
+             </div>
+
+             <div className="flex justify-end gap-3 mt-6">
+               <button
+                 type="button"
+                 onClick={() => setShowReviewModal(false)}
+                 className="px-4 py-2 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+               >
+                 Cancel
+               </button>
+               <button
+                 type="submit"
+                 disabled={submittingReview}
+                 className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-smooth disabled:opacity-50"
+               >
+                 {submittingReview ? "Submitting..." : "Submit Review"}
+               </button>
+             </div>
+           </form>
+         )}
+       </motion.div>
+     </motion.div>
+   )}
+ </AnimatePresence>
  </div>
  );
 }
