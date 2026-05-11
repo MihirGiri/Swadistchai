@@ -8,11 +8,13 @@ import {
  Plus,
  ShoppingBag,
  Truck,
+ Heart,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import ProductCard, { StarRating } from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const FALLBACK_IMAGE =
  "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=600&q=80&auto=format&fit=crop";
@@ -29,17 +31,65 @@ const getImageUrl = (imagePath) => {
  return imagePath; // Keep as is for static data
 };
 
-export default function ProductDetail() {
- const { id } = useParams({ strict: false });
- const { addToCart } = useCart();
- const navigate = useNavigate();
+ export default function ProductDetail() {
+  const { id } = useParams({ strict: false });
+  const { addToCart } = useCart();
+  const { user, setUser, token } = useAuth();
+  const navigate = useNavigate();
 
- const [quantity, setQuantity] = useState(1);
- const [activeThumb, setActiveThumb] = useState(0);
- const [activeTab, setActiveTab] = useState("Description");
- const [addedSuccess, setAddedSuccess] = useState(false);
- const [products, setProducts] = useState([]);
- const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [activeThumb, setActiveThumb] = useState(0);
+  const [activeTab, setActiveTab] = useState("Description");
+  const [addedSuccess, setAddedSuccess] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Wishlist state
+  const [isWishlisted, setIsWishlisted] = useState(
+    user?.wishlist?.includes(id) || false
+  );
+
+  useEffect(() => {
+    setIsWishlisted(user?.wishlist?.includes(id) || false);
+  }, [user?.wishlist, id]);
+
+  const toggleWishlist = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!token) {
+      navigate({ to: "/login" });
+      return;
+    }
+
+    const previousState = isWishlisted;
+    setIsWishlisted(!isWishlisted);
+
+    try {
+      const baseUrl = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
+      const url = !isWishlisted ? `${baseUrl}/add/${id}` : `${baseUrl}/remove/${id}`;
+      
+      const response = await fetch(url, {
+        method: !isWishlisted ? "POST" : "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      
+      if (setUser && data.wishlist) {
+        setUser((prev) => ({ ...prev, wishlist: data.wishlist }));
+      }
+    } catch (error) {
+      console.error("Wishlist error:", error);
+      setIsWishlisted(previousState);
+    }
+  };
 
  // Fetch products from API
  useEffect(() => {
@@ -498,6 +548,16 @@ export default function ProductDetail() {
  )}
  </AnimatePresence>
  </motion.button>
+
+ {/* Wishlist Button */}
+ <button
+   type="button"
+   onClick={toggleWishlist}
+   className="w-12 h-12 flex items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-smooth shrink-0 shadow-sm"
+   aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+ >
+   <Heart size={20} className={isWishlisted ? "fill-red-500 text-red-500" : ""} />
+ </button>
  </div>
 
  {/* Trust signals */}
