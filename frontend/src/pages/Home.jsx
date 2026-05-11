@@ -80,7 +80,7 @@ const pillars = [
 ];
 
 /* ── Category Card with image hover swap ── */
-function CategoryCard({ cat, index }) {
+function CategoryCard({ cat, index, count }) {
  const [hovered, setHovered] = useState(false);
 
  return (
@@ -94,6 +94,7 @@ function CategoryCard({ cat, index }) {
  >
  <Link
  to="/shop"
+ search={{ category: cat.id }}
  className="group block relative rounded-xl overflow-hidden shadow-card hover:shadow-tea transition-smooth"
  data-ocid={`category-${cat.id}`}
  onMouseEnter={() => setHovered(true)}
@@ -130,7 +131,7 @@ function CategoryCard({ cat, index }) {
  </p>
  </div>
  <p className="text-[#D4B896] text-xs mt-1 font-semibold">
- {cat.count} {cat.count === 1 ? "variety" : "varieties"}
+ {count} {count === 1 ? "variety" : "varieties"}
  </p>
  </div>
  </Link>
@@ -709,7 +710,12 @@ export default function Home() {
  />
  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
  {categories.map((cat, i) => (
- <CategoryCard key={cat.id} cat={cat} index={i} />
+ <CategoryCard 
+    key={cat.id} 
+    cat={cat} 
+    index={i} 
+    count={products.filter(p => p.category?.toLowerCase().replace(/\s+/g, "-") === cat.id).length} 
+ />
  ))}
  </div>
  </SectionContainer>

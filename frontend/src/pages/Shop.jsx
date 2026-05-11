@@ -23,11 +23,15 @@ export default function Shop() {
  const [loading, setLoading] = useState(true);
  const [showDrawer, setShowDrawer] = useState(false);
  const [sort, setSort] = useState("featured");
- const [activeCategories, setActiveCategories] = useState([]);
- const [priceMin, setPriceMin] = useState(PRICE_MIN);
- const [priceMax, setPriceMax] = useState(PRICE_MAX);
  const searchParams = useSearch({ from: "/shop" });
  const searchQuery = (searchParams?.q || "").toLowerCase();
+ const categoryParam = searchParams?.category;
+
+ const [activeCategories, setActiveCategories] = useState(
+   categoryParam ? [categoryParam] : []
+ );
+ const [priceMin, setPriceMin] = useState(PRICE_MIN);
+ const [priceMax, setPriceMax] = useState(PRICE_MAX);
 
  // Fetch products from API
  useEffect(() => {
