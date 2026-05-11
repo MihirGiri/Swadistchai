@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -33,7 +33,7 @@ function StarRating({ rating, count }) {
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
-  const { user, token } = useAuth();
+  const { user, setUser, token } = useAuth();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -43,6 +43,10 @@ export default function ProductCard({ product, index = 0 }) {
   const [isWishlisted, setIsWishlisted] = useState(
     user?.wishlist?.includes(productId) || false
   );
+
+  useEffect(() => {
+    setIsWishlisted(user?.wishlist?.includes(productId) || false);
+  }, [user?.wishlist, productId]);
 
   const toggleWishlist = async (e) => {
     e.preventDefault();
@@ -57,19 +61,25 @@ export default function ProductCard({ product, index = 0 }) {
     setIsWishlisted(!isWishlisted);
 
     try {
-      const url = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
-      const response = await fetch(!isWishlisted ? url : `${url}/${productId}`, {
+      const baseUrl = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
+      const url = !isWishlisted ? `${baseUrl}/add/${productId}` : `${baseUrl}/remove/${productId}`;
+      
+      const response = await fetch(url, {
         method: !isWishlisted ? "POST" : "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-        },
-        body: !isWishlisted ? JSON.stringify({ productId }) : null,
+        }
       });
 
       const data = await response.json();
       if (!data.success) {
         throw new Error(data.message);
+      }
+      
+      // Update the user's global wishlist state so the heart stays red on navigation
+      if (setUser && data.wishlist) {
+        setUser((prev) => ({ ...prev, wishlist: data.wishlist }));
       }
     } catch (error) {
       console.error("Wishlist error:", error);
