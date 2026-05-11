@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, Package, SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Loader2, Package, SearchX, Star, X } from "lucide-react";
