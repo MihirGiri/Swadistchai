@@ -5,8 +5,6 @@ import {
   Mail,
   MapPin,
   Phone,
-  Twitter,
-  Youtube,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { TeaLeafLogo } from "./Navbar";
@@ -29,10 +27,8 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { Icon: Instagram, href: "#", label: "Instagram" },
-  { Icon: Facebook, href: "#", label: "Facebook" },
-  { Icon: Twitter, href: "#", label: "Twitter" },
-  { Icon: Youtube, href: "#", label: "YouTube" },
+  { Icon: Instagram, href: "https://www.instagram.com/mihir_giri__?igsh=MTB0dnY0aDV5MTR2ZQ==", label: "Instagram" },
+  { Icon: Facebook, href: "https://www.instagram.com/mihir_giri__?igsh=MTB0dnY0aDV5MTR2ZQ==", label: "Facebook" },
 ];
 
 const certBadges = [
@@ -415,7 +411,7 @@ export default function Footer() {
               </Link>
             </div>
             <span className="text-xs" style={{ color: FOOTER_MUTED }}>
-              Built with love ❤️
+              Designed & Developed by Mihir Giri😊
             </span>
           </div>
         </div>
