@@ -38,6 +38,7 @@ import ManageCustomers from "./pages/admin/ManageCustomers";
 import ManageHeroSlides from "./pages/admin/ManageHeroSlides";
 import ManageOrders from "./pages/admin/ManageOrders";
 import ManageReviews from "./pages/admin/ManageReviews";
+import StoreSettings from "./pages/admin/StoreSettings";
 
 const queryClient = new QueryClient();
 
@@ -148,6 +149,11 @@ const adminReviewsRoute = createRoute({
   path: "/admin/reviews",
   component: ManageReviews,
 });
+const adminSettingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/settings",
+  component: StoreSettings,
+});
 const wishlistRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/wishlist",
@@ -189,6 +195,7 @@ const routeTree = rootRoute.addChildren([
   adminBannerOffersRoute,
   adminAdminsRoute,
   adminReviewsRoute,
+  adminSettingsRoute,
   wishlistRoute,
   checkoutRoute,
   myOrdersRoute,

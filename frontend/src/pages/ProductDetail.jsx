@@ -33,7 +33,7 @@ const getImageUrl = (imagePath) => {
 
  export default function ProductDetail() {
   const { id } = useParams({ strict: false });
-  const { addToCart } = useCart();
+  const { addToCart, deliverySettings } = useCart();
   const { user, setUser, token } = useAuth();
   const navigate = useNavigate();
 
@@ -621,9 +621,11 @@ const getImageUrl = (imagePath) => {
  </div>
 
  {/* Trust signals */}
- <p className="text-xs text-muted-foreground text-center">
- Free shipping on orders over ₹4,150 · Sealed for peak freshness
- </p>
+  <p className="text-xs text-muted-foreground text-center">
+  {deliverySettings?.freeDeliveryForAll 
+    ? "Free shipping on all orders" 
+    : `Free shipping on orders over ₹${deliverySettings?.freeDeliveryThreshold?.toLocaleString("en-IN") || "4,000"}`} · Sealed for peak freshness
+  </p>
  </motion.div>
  </div>
 

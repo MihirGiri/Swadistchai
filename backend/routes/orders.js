@@ -2,6 +2,7 @@ import express from "express";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
+import StoreSettings from "../models/StoreSettings.js";
 import { authenticateToken } from "./auth.js";
 
 const router = express.Router();
@@ -68,9 +69,20 @@ router.post("/", authenticateToken, async (req, res) => {
       await product.save();
     }
 
-    // Apply tax (10%)
-    const taxAmount = orderTotal * 0.1;
-    const finalTotal = orderTotal + taxAmount;
+    // Get delivery settings
+    let settings = await StoreSettings.findOne();
+    if (!settings) {
+      settings = { deliveryFee: 49, freeDeliveryThreshold: 499, freeDeliveryForAll: false };
+    }
+
+    let shippingCost = 0;
+    if (!settings.freeDeliveryForAll) {
+      if (orderTotal < settings.freeDeliveryThreshold) {
+        shippingCost = settings.deliveryFee;
+      }
+    }
+
+    const finalTotal = orderTotal + shippingCost;
 
     const order = new Order({
       user: req.user.id,
@@ -80,7 +92,7 @@ router.post("/", authenticateToken, async (req, res) => {
         email: (await User.findById(req.user.id)).email,
       },
       orderTotal: finalTotal,
-      taxAmount,
+      shippingCost,
       paymentMethod: paymentMethod || "credit_card",
     });
 

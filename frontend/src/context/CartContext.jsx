@@ -1,10 +1,34 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { toast } from "../components/Toast";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
+  const [deliverySettings, setDeliverySettings] = useState({
+    deliveryFee: 49,
+    freeDeliveryThreshold: 499,
+    freeDeliveryForAll: false,
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/settings/delivery`);
+        const data = await response.json();
+        if (data.success && data.settings) {
+          setDeliverySettings({
+            deliveryFee: data.settings.deliveryFee,
+            freeDeliveryThreshold: data.settings.freeDeliveryThreshold,
+            freeDeliveryForAll: data.settings.freeDeliveryForAll,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load delivery settings:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const addToCart = useCallback((product, quantity = 1) => {
     const pId = product._id || product.id;
@@ -60,6 +84,7 @@ export function CartProvider({ children }) {
         clearCart,
         cartCount,
         cartTotal,
+        deliverySettings,
       }}
     >
       {children}

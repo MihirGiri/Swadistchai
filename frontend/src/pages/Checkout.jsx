@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
 export default function Checkout() {
- const { cartItems, cartTotal, clearCart } = useCart();
+ const { cartItems, cartTotal, clearCart, deliverySettings } = useCart();
  const { token } = useAuth();
  const navigate = useNavigate();
  const [loading, setLoading] = useState(false);
@@ -29,9 +29,8 @@ export default function Checkout() {
  longitude: "",
  });
 
- const FREE_SHIPPING_THRESHOLD = 4000;
- const SHIPPING_COST = 199;
- const shipping = cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+ const isFreeShipping = deliverySettings?.freeDeliveryForAll || cartTotal >= deliverySettings?.freeDeliveryThreshold;
+ const shipping = isFreeShipping ? 0 : (deliverySettings?.deliveryFee || 49);
  const orderTotal = cartTotal + shipping;
 
  const fetchPincodeDetails = async (pincode) => {

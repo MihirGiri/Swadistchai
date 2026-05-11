@@ -15,8 +15,6 @@ import { toast } from "../components/Toast";
 import { useCart } from "../context/CartContext";
 
 const STAGGER = 0.07;
-const FREE_SHIPPING_THRESHOLD = 4000;
-const SHIPPING_COST = 199;
 
 function CartItemRow({ item, index }) {
  const { updateQuantity, removeFromCart } = useCart();
@@ -134,9 +132,13 @@ function CartItemRow({ item, index }) {
 }
 
 function OrderSummary({ cartItems, cartTotal }) {
- const shipping = cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
- const orderTotal = cartTotal + shipping;
- const amountToFreeShipping = FREE_SHIPPING_THRESHOLD - cartTotal;
+  const { deliverySettings } = useCart();
+  const FREE_SHIPPING_THRESHOLD = deliverySettings.freeDeliveryThreshold;
+  const SHIPPING_COST = deliverySettings.deliveryFee;
+  const isFreeShipping = deliverySettings.freeDeliveryForAll || cartTotal >= FREE_SHIPPING_THRESHOLD;
+  const shipping = isFreeShipping ? 0 : SHIPPING_COST;
+  const orderTotal = cartTotal + shipping;
+  const amountToFreeShipping = FREE_SHIPPING_THRESHOLD - cartTotal;
 
  return (
  <motion.div
@@ -150,7 +152,7 @@ function OrderSummary({ cartItems, cartTotal }) {
  </h2>
 
  {/* Progress to free shipping */}
- {cartTotal < FREE_SHIPPING_THRESHOLD && (
+ {!deliverySettings.freeDeliveryForAll && cartTotal < FREE_SHIPPING_THRESHOLD && (
  <motion.div
  initial={{ opacity: 0, y: 8 }}
  animate={{ opacity: 1, y: 0 }}
@@ -179,7 +181,7 @@ function OrderSummary({ cartItems, cartTotal }) {
  </motion.div>
  )}
 
- {cartTotal >= FREE_SHIPPING_THRESHOLD && (
+ {(!deliverySettings.freeDeliveryForAll && cartTotal >= FREE_SHIPPING_THRESHOLD) && (
  <div className="flex items-center gap-2 text-xs text-primary bg-primary/8 rounded-xl px-3 py-2 mb-5">
  <Sparkles size={13} />
  <span className="font-medium">You've unlocked free shipping!</span>
@@ -196,8 +198,8 @@ function OrderSummary({ cartItems, cartTotal }) {
  </div>
  <div className="flex justify-between text-foreground/70">
  <span>Shipping</span>
- <span className={shipping === 0 ? "text-primary font-medium" : ""}>
- {shipping === 0
+ <span className={isFreeShipping ? "text-primary font-medium" : ""}>
+ {isFreeShipping
  ? "Free"
  : `₹${SHIPPING_COST.toLocaleString("en-IN")}`}
  </span>
@@ -323,7 +325,7 @@ function EmptyCart() {
 }
 
 export default function Cart() {
- const { cartItems, cartTotal, clearCart } = useCart();
+ const { cartItems, cartTotal, clearCart, deliverySettings } = useCart();
 
  if (cartItems.length === 0) {
  return (
@@ -450,9 +452,9 @@ export default function Cart() {
  <p className="text-xs text-muted-foreground">Total</p>
  <p className="font-semibold text-foreground">
  ₹
- {(cartTotal >= FREE_SHIPPING_THRESHOLD
+ {(deliverySettings.freeDeliveryForAll || cartTotal >= deliverySettings.freeDeliveryThreshold
  ? cartTotal
- : cartTotal + SHIPPING_COST
+ : cartTotal + deliverySettings.deliveryFee
  ).toLocaleString("en-IN")}
  </p>
  </div>
