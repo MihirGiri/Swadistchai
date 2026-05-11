@@ -205,8 +205,8 @@ export default function Footer() {
                     Icon: MapPin,
                     text: "14 Pedder Road, Breach Candy, Mumbai 400 026",
                   },
-                  { Icon: Phone, text: "+91 22 6712 4500" },
-                  { Icon: Mail, text: "hello@swadistchai.com" },
+                  { Icon: Phone, text: "+91 6203570295" },
+                  { Icon: Mail, text: "admin@swadistchai.com" },
                 ].map(({ Icon, text }) => (
                   <div
                     key={text}
