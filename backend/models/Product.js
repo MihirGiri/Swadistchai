@@ -79,7 +79,15 @@ const productSchema = new mongoose.Schema(
         name: String,
         rating: Number,
         comment: String,
-        date: Date,
+        status: {
+          type: String,
+          enum: ["pending", "approved", "rejected"],
+          default: "pending",
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     createdBy: {

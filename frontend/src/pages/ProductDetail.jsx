@@ -44,6 +44,13 @@ const getImageUrl = (imagePath) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Review state
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
+
   // Wishlist state
   const checkIsWishlisted = (wishlistArray, pid) => {
     if (!wishlistArray || !Array.isArray(wishlistArray)) return false;
@@ -124,6 +131,45 @@ const getImageUrl = (imagePath) => {
  const related = products
  .filter((p) => (p._id || p.id) !== id && p.category === product?.category)
  .slice(0, 4);
+
+ const approvedReviews = product?.reviews ? product.reviews.filter(r => r.status === "approved") : [];
+
+ const handleReviewSubmit = async (e) => {
+   e.preventDefault();
+   if (!token) {
+     navigate({ to: "/login" });
+     return;
+   }
+   
+   setSubmittingReview(true);
+   setReviewError("");
+   setReviewSuccess("");
+   
+   try {
+     const response = await fetch(
+       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${id}/reviews`,
+       {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`,
+         },
+         body: JSON.stringify({ rating: reviewRating, comment: reviewComment }),
+       }
+     );
+     
+     const data = await response.json();
+     if (!data.success) throw new Error(data.message);
+     
+     setReviewSuccess("Review submitted successfully! It will appear after admin approval.");
+     setReviewComment("");
+     setReviewRating(5);
+   } catch (error) {
+     setReviewError(error.message || "Failed to submit review");
+   } finally {
+     setSubmittingReview(false);
+   }
+ };
 
  /* ── Loading ── */
  if (loading) {
@@ -450,18 +496,17 @@ const getImageUrl = (imagePath) => {
  </div>
  ) : (
  <div className="space-y-4">
- {(product.reviews || []).map((r) => (
+ {approvedReviews.map((r) => (
  <div
- key={r.id}
+ key={r._id || r.id}
  className="bg-muted/30 rounded-xl p-4 border border-border"
- data-ocid={`inline-review-${r.id}`}
  >
  <div className="flex items-center justify-between mb-2">
  <span className="font-semibold text-sm text-foreground">
  {r.name}
  </span>
  <span className="text-xs text-muted-foreground">
- {r.date}
+ {r.date ? new Date(r.date).toLocaleDateString() : ""}
  </span>
  </div>
  <StarRating rating={r.rating} />
@@ -472,6 +517,43 @@ const getImageUrl = (imagePath) => {
  ))}
  </div>
  )}
+
+ <div className="mt-8 bg-muted/20 rounded-xl p-5 border border-border">
+ <h4 className="font-semibold text-sm mb-3">Write a Review</h4>
+ {reviewSuccess ? (
+ <p className="text-green-600 text-sm font-medium p-3 bg-green-500/10 rounded-lg">{reviewSuccess}</p>
+ ) : (
+ <form onSubmit={handleReviewSubmit} className="space-y-3">
+ {reviewError && <p className="text-red-500 text-xs">{reviewError}</p>}
+ <div className="flex gap-1">
+ {[1, 2, 3, 4, 5].map((star) => (
+ <button
+ key={star}
+ type="button"
+ onClick={() => setReviewRating(star)}
+ className={`text-xl ${reviewRating >= star ? "text-accent" : "text-muted-foreground/30"}`}
+ >
+ ★
+ </button>
+ ))}
+ </div>
+ <textarea
+ required
+ value={reviewComment}
+ onChange={(e) => setReviewComment(e.target.value)}
+ placeholder="Share your experience (must have purchased)..."
+ className="w-full bg-card border border-border rounded-lg p-3 text-sm min-h-[80px] focus:outline-none focus:border-primary/50"
+ />
+ <button
+ type="submit"
+ disabled={submittingReview}
+ className="px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-smooth disabled:opacity-50"
+ >
+ {submittingReview ? "Submitting..." : "Submit Review"}
+ </button>
+ </form>
+ )}
+ </div>
  </motion.div>
  )}
  </AnimatePresence>
@@ -576,7 +658,7 @@ const getImageUrl = (imagePath) => {
  </div>
 
  {/* ── Full-width Reviews section ── */}
- {product.reviews && product.reviews.length > 0 && (
+ {approvedReviews.length > 0 && (
  <section className="py-14 border-t border-border">
  <motion.h2
  initial={{ opacity: 0, y: 16 }}
@@ -588,21 +670,21 @@ const getImageUrl = (imagePath) => {
  Customer Reviews
  </motion.h2>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
- {product.reviews.map((r, i) => (
+ {approvedReviews.map((r, i) => (
  <motion.div
- key={r.id}
+ key={r._id || r.id}
  initial={{ opacity: 0, y: 20 }}
  whileInView={{ opacity: 1, y: 0 }}
  viewport={{ once: true }}
  transition={{ duration: 0.4, delay: i * 0.1 }}
  className="bg-card rounded-xl p-5 border border-border shadow-card"
- data-ocid={`review-${r.id}`}
+ data-ocid={`review-${r._id || r.id}`}
  >
  {/* Avatar + Name */}
  <div className="flex items-start justify-between mb-3">
  <div className="flex items-center gap-3">
  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-sm font-bold text-foreground shrink-0">
- {r.name.charAt(0)}
+ {r.name ? r.name.charAt(0) : "C"}
  </div>
  <div>
  <p className="font-semibold text-sm text-foreground leading-none">
@@ -614,7 +696,7 @@ const getImageUrl = (imagePath) => {
  </div>
  </div>
  <span className="text-xs text-muted-foreground">
- {r.date}
+ {r.date ? new Date(r.date).toLocaleDateString() : ""}
  </span>
  </div>
  <StarRating rating={r.rating} />

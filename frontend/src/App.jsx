@@ -36,6 +36,7 @@ import ManageBannerOffers from "./pages/admin/ManageBannerOffers";
 import ManageCustomers from "./pages/admin/ManageCustomers";
 import ManageHeroSlides from "./pages/admin/ManageHeroSlides";
 import ManageOrders from "./pages/admin/ManageOrders";
+import ManageReviews from "./pages/admin/ManageReviews";
 
 const queryClient = new QueryClient();
 
@@ -141,6 +142,11 @@ const adminAdminsRoute = createRoute({
   path: "/admin/admins",
   component: ManageAdmins,
 });
+const adminReviewsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/reviews",
+  component: ManageReviews,
+});
 const wishlistRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/wishlist",
@@ -176,6 +182,7 @@ const routeTree = rootRoute.addChildren([
   adminHeroSlidesRoute,
   adminBannerOffersRoute,
   adminAdminsRoute,
+  adminReviewsRoute,
   wishlistRoute,
   checkoutRoute,
   myOrdersRoute,

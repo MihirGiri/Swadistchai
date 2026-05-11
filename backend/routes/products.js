@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import Product from "../models/Product.js";
+import Order from "../models/Order.js";
 import { authenticateToken } from "./auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -283,6 +284,116 @@ router.delete("/:id", authenticateToken, isAdmin, async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: error.message || "Error deleting product" });
+  }
+});
+
+// Submit a review for a product
+router.post("/:id/reviews", authenticateToken, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: "Rating and comment are required" });
+    }
+
+    // Check if user has bought this product and order is delivered
+    const hasBought = await Order.findOne({
+      user: req.user.id,
+      status: "delivered",
+      "items.product": req.params.id
+    });
+
+    if (!hasBought && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "You can only review products you have bought and received" });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    // Check if user already reviewed
+    const alreadyReviewed = product.reviews.find(r => r.userId?.toString() === req.user.id);
+    if (alreadyReviewed) {
+      return res.status(400).json({ success: false, message: "You have already reviewed this product" });
+    }
+
+    const review = {
+      userId: req.user.id,
+      name: req.user.name || "Customer",
+      rating: Number(rating),
+      comment,
+      status: "pending"
+    };
+
+    product.reviews.push(review);
+    await product.save();
+
+    res.status(201).json({ success: true, message: "Review submitted for approval" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get pending reviews (Admin only)
+router.get("/admin/reviews/pending", authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const products = await Product.find({ "reviews.status": "pending" });
+    
+    let pendingReviews = [];
+    products.forEach(p => {
+      p.reviews.forEach(r => {
+        if (r.status === "pending") {
+          pendingReviews.push({
+            productId: p._id,
+            productName: p.name,
+            reviewId: r._id,
+            userId: r.userId,
+            name: r.name,
+            rating: r.rating,
+            comment: r.comment,
+            date: r.date
+          });
+        }
+      });
+    });
+
+    res.json({ success: true, reviews: pendingReviews });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update review status (Admin only)
+router.patch("/:productId/reviews/:reviewId", authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    const review = product.reviews.id(req.params.reviewId);
+    if (!review) return res.status(404).json({ success: false, message: "Review not found" });
+
+    review.status = status;
+
+    // Recalculate average rating and review count ONLY for approved reviews
+    const approvedReviews = product.reviews.filter(r => r.status === "approved");
+    product.reviewCount = approvedReviews.length;
+    
+    if (approvedReviews.length > 0) {
+      const sum = approvedReviews.reduce((acc, r) => acc + r.rating, 0);
+      product.rating = (sum / approvedReviews.length).toFixed(1);
+    } else {
+      product.rating = 0;
+    }
+
+    await product.save();
+
+    res.json({ success: true, message: `Review ${status} successfully` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
