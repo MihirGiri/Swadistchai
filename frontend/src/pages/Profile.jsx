@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Package, Star, MessageSquareHeart, X } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
 import SectionContainer from "../components/SectionContainer";
 import { useAuth } from "../context/AuthContext";
