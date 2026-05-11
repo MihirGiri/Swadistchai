@@ -68,7 +68,7 @@ const connectMongoDB = async (retries = 5) => {
           const newAdmin = new User({
             name: "Admin",
             email: "admin@tealeaf.com",
-            password: "Tealeaf@Admin831013",
+            password: "Mihir@832302",
             role: "admin",
             phone: "+91-1234567890",
             address: "TeaLeaf HQ, India",
