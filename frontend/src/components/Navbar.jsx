@@ -181,8 +181,8 @@ export default function Navbar() {
 
   const handleProductClick = (product) => {
     navigate({
-      to: "/product/$id",
-      params: { id: product.id || product._id },
+      to: "/shop/$id",
+      params: { id: String(product.id || product._id) },
     });
     setSearchQuery("");
     setShowSuggestions(false);
