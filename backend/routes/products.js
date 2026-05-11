@@ -287,6 +287,29 @@ router.delete("/:id", authenticateToken, isAdmin, async (req, res) => {
   }
 });
 
+// Get all reviews of the logged-in user
+router.get("/user/reviews", authenticateToken, async (req, res) => {
+  try {
+    const products = await Product.find({ "reviews.userId": req.user.id });
+    const userReviews = [];
+
+    products.forEach(product => {
+      const review = product.reviews.find(r => r.userId?.toString() === req.user.id);
+      if (review) {
+        userReviews.push({
+          productId: product._id,
+          productName: product.name,
+          ...review.toObject()
+        });
+      }
+    });
+
+    res.json({ success: true, reviews: userReviews });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || "Error fetching your reviews" });
+  }
+});
+
 // Submit a review for a product
 router.post("/:id/reviews", authenticateToken, async (req, res) => {
   try {
@@ -313,7 +336,7 @@ router.post("/:id/reviews", authenticateToken, async (req, res) => {
     // Check if user already reviewed
     const alreadyReviewed = product.reviews.find(r => r.userId?.toString() === req.user.id);
     if (alreadyReviewed) {
-      return res.status(400).json({ success: false, message: "You have already reviewed this product" });
+      return res.status(400).json({ success: false, message: "You have already reviewed this product. You can edit it instead." });
     }
 
     const review = {
@@ -327,7 +350,73 @@ router.post("/:id/reviews", authenticateToken, async (req, res) => {
     product.reviews.push(review);
     await product.save();
 
-    res.status(201).json({ success: true, message: "Review submitted for approval" });
+    res.status(201).json({ success: true, message: "Review submitted for approval", review });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Edit user's own review
+router.put("/:id/reviews", authenticateToken, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: "Rating and comment are required" });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    const review = product.reviews.find(r => r.userId?.toString() === req.user.id);
+    if (!review) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    review.rating = Number(rating);
+    review.comment = comment;
+    review.status = "pending"; // Requires re-approval
+    review.date = Date.now();
+
+    await product.save();
+
+    // Recalculate if it was approved
+    const approvedReviews = product.reviews.filter((r) => r.status === "approved");
+    product.rating = approvedReviews.length > 0
+      ? approvedReviews.reduce((acc, item) => item.rating + acc, 0) / approvedReviews.length
+      : 0;
+    product.reviewCount = approvedReviews.length;
+    await product.save();
+
+    res.json({ success: true, message: "Review updated and submitted for approval", review });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete user's own review
+router.delete("/:id/reviews", authenticateToken, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+
+    const reviewIndex = product.reviews.findIndex(r => r.userId?.toString() === req.user.id);
+    if (reviewIndex === -1) {
+      return res.status(404).json({ success: false, message: "Review not found" });
+    }
+
+    product.reviews.splice(reviewIndex, 1);
+    
+    // Recalculate
+    const approvedReviews = product.reviews.filter((r) => r.status === "approved");
+    product.rating = approvedReviews.length > 0
+      ? approvedReviews.reduce((acc, item) => item.rating + acc, 0) / approvedReviews.length
+      : 0;
+    product.reviewCount = approvedReviews.length;
+    
+    await product.save();
+
+    res.json({ success: true, message: "Review deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

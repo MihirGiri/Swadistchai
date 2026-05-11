@@ -20,6 +20,8 @@ export default function MyOrders() {
  const [submittingReview, setSubmittingReview] = useState(false);
  const [reviewError, setReviewError] = useState("");
  const [reviewSuccess, setReviewSuccess] = useState("");
+ const [myReviews, setMyReviews] = useState([]);
+ const [isEditingReview, setIsEditingReview] = useState(false);
 
  useEffect(() => {
  if (!authLoading && !user) {
@@ -53,8 +55,22 @@ export default function MyOrders() {
  }
  };
 
+ const fetchReviews = async () => {
+   if (!token) return;
+   try {
+     const res = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/user/reviews`, {
+       headers: { Authorization: `Bearer ${token}` }
+     });
+     const data = await res.json();
+     if (data.success) setMyReviews(data.reviews);
+   } catch (err) {
+     console.error(err);
+   }
+ };
+
  if (token) {
  fetchOrders();
+ fetchReviews();
  }
  }, [token]);
 
@@ -103,9 +119,17 @@ export default function MyOrders() {
  };
 
  const openReviewModal = (productId, productName) => {
+   const existingReview = myReviews.find(r => r.productId === productId);
    setSelectedProduct({ id: productId, name: productName });
-   setReviewRating(5);
-   setReviewComment("");
+   if (existingReview) {
+     setReviewRating(existingReview.rating);
+     setReviewComment(existingReview.comment);
+     setIsEditingReview(true);
+   } else {
+     setReviewRating(5);
+     setReviewComment("");
+     setIsEditingReview(false);
+   }
    setReviewError("");
    setReviewSuccess("");
    setShowReviewModal(true);
@@ -120,10 +144,11 @@ export default function MyOrders() {
    setReviewSuccess("");
    
    try {
+     const method = isEditingReview ? "PUT" : "POST";
      const response = await fetch(
        `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${selectedProduct.id}/reviews`,
        {
-         method: "POST",
+         method,
          headers: {
            "Content-Type": "application/json",
            Authorization: `Bearer ${token}`,
@@ -135,10 +160,42 @@ export default function MyOrders() {
      const data = await response.json();
      if (!data.success) throw new Error(data.message);
      
+     if (isEditingReview) {
+       setMyReviews(prev => prev.map(r => r.productId === selectedProduct.id ? { ...r, rating: reviewRating, comment: reviewComment, status: 'pending' } : r));
+     } else {
+       setMyReviews(prev => [...prev, { productId: selectedProduct.id, rating: reviewRating, comment: reviewComment, status: 'pending' }]);
+     }
+     
      setReviewSuccess("Review submitted successfully! It will appear after admin approval.");
      setTimeout(() => setShowReviewModal(false), 3000);
    } catch (error) {
      setReviewError(error.message || "Failed to submit review");
+   } finally {
+     setSubmittingReview(false);
+   }
+ };
+
+ const handleReviewDelete = async () => {
+   if (!selectedProduct) return;
+   if (!window.confirm("Are you sure you want to delete this review?")) return;
+   
+   setSubmittingReview(true);
+   try {
+     const response = await fetch(
+       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${selectedProduct.id}/reviews`,
+       {
+         method: "DELETE",
+         headers: { Authorization: `Bearer ${token}` }
+       }
+     );
+     const data = await response.json();
+     if (!data.success) throw new Error(data.message);
+     
+     setMyReviews(prev => prev.filter(r => r.productId !== selectedProduct.id));
+     setReviewSuccess("Review deleted successfully.");
+     setTimeout(() => setShowReviewModal(false), 2000);
+   } catch (error) {
+     setReviewError(error.message || "Failed to delete review");
    } finally {
      setSubmittingReview(false);
    }
@@ -275,9 +332,9 @@ export default function MyOrders() {
  {order.status === "delivered" && item.product && (
    <button
      onClick={() => openReviewModal(item.product._id || item.product.id, item.product.name)}
-     className="mt-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-lg"
+     className="mt-2 text-xs font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-lg whitespace-nowrap"
    >
-     Leave a Review
+     {myReviews.some(r => r.productId === (item.product._id || item.product.id)) ? "Edit / Delete Review" : "Leave a Review"}
    </button>
  )}
  </div>
@@ -351,6 +408,17 @@ export default function MyOrders() {
              </div>
 
              <div className="flex justify-end gap-3 mt-6">
+                {isEditingReview && (
+                  <button
+                    type="button"
+                    onClick={handleReviewDelete}
+                    disabled={submittingReview}
+                    className="px-4 py-2 text-sm font-medium text-red-600 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors mr-auto"
+                  >
+                    Delete Review
+                  </button>
+                )}
+
                <button
                  type="button"
                  onClick={() => setShowReviewModal(false)}
@@ -363,7 +431,7 @@ export default function MyOrders() {
                  disabled={submittingReview}
                  className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 transition-smooth disabled:opacity-50"
                >
-                 {submittingReview ? "Submitting..." : "Submit Review"}
+                 {submittingReview ? "Saving..." : (isEditingReview ? "Update Review" : "Submit Review")}
                </button>
              </div>
            </form>
