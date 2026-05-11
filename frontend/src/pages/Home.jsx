@@ -143,7 +143,8 @@ function CategoryCard({ cat, index, count }) {
 function TestimonialsSection() {
  const [idx, setIdx] = useState(0);
  const [auto, setAuto] = useState(true);
- const [activeTestimonials, setActiveTestimonials] = useState(testimonials);
+ const [activeTestimonials, setActiveTestimonials] = useState([]);
+ const [loading, setLoading] = useState(true);
 
  useEffect(() => {
    const fetchReviews = async () => {
@@ -159,9 +160,13 @@ function TestimonialsSection() {
            avatar: r.name.charAt(0).toUpperCase(),
            rating: r.rating
          })));
+       } else {
+         setActiveTestimonials([]);
        }
      } catch (err) {
        console.error("Failed to load site reviews:", err);
+     } finally {
+       setLoading(false);
      }
    };
    fetchReviews();
@@ -190,6 +195,18 @@ function TestimonialsSection() {
  />
 
  <div className="relative max-w-3xl mx-auto">
+ {loading ? (
+   <div className="flex justify-center items-center h-48">
+     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+   </div>
+ ) : activeTestimonials.length === 0 ? (
+   <div className="bg-card rounded-2xl p-8 md:p-12 border border-border shadow-card text-center text-muted-foreground flex flex-col items-center justify-center min-h-[200px]">
+     <Star size={40} className="text-muted-foreground/30 mb-4" />
+     <p className="text-lg font-medium text-foreground">No reviews yet.</p>
+     <p className="text-sm mt-2">Be the first to share your experience by visiting your profile!</p>
+   </div>
+ ) : (
+   <>
  <AnimatePresence mode="wait">
  <motion.div
  key={idx}
@@ -256,11 +273,13 @@ function TestimonialsSection() {
  data-ocid="testimonial-next"
  >
  <ChevronRight size={18} />
- </button>
- </div>
- </div>
- </SectionContainer>
- );
+  </button>
+  </div>
+  </>
+  )}
+  </div>
+  </SectionContainer>
+  );
 }
 
 /* ── Newsletter ── */
