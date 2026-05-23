@@ -63,12 +63,14 @@ const connectMongoDB = async (retries = 5) => {
       
       // Seed default admin user if it doesn't exist
       try {
-        const adminExists = await User.findOne({ email: "admin@tealeaf.com" });
+        const adminEmail = process.env.ADMIN_EMAIL || "admin@tealeaf.com";
+        const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+        const adminExists = await User.findOne({ email: adminEmail });
         if (!adminExists) {
           const newAdmin = new User({
             name: "Admin",
-            email: "admin@tealeaf.com",
-            password: "Mihir@832302",
+            email: adminEmail,
+            password: adminPassword,
             role: "admin",
             phone: "+91-1234567890",
             address: "TeaLeaf HQ, India",
