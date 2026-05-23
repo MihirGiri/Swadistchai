@@ -63,20 +63,25 @@ const connectMongoDB = async (retries = 5) => {
       
       // Seed default admin user if it doesn't exist
       try {
-        const adminEmail = process.env.ADMIN_EMAIL || "admin@tealeaf.com";
-        const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
-        const adminExists = await User.findOne({ email: adminEmail });
-        if (!adminExists) {
-          const newAdmin = new User({
-            name: "Admin",
-            email: adminEmail,
-            password: adminPassword,
-            role: "admin",
-            phone: "+91-1234567890",
-            address: "TeaLeaf HQ, India",
-          });
-          await newAdmin.save();
-          console.log("✅ Default Admin user created on startup!");
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        
+        if (adminEmail && adminPassword) {
+          const adminExists = await User.findOne({ email: adminEmail });
+          if (!adminExists) {
+            const newAdmin = new User({
+              name: "Admin",
+              email: adminEmail,
+              password: adminPassword,
+              role: "admin",
+              phone: "+91-1234567890",
+              address: "TeaLeaf HQ, India",
+            });
+            await newAdmin.save();
+            console.log("✅ Admin user created from environment variables!");
+          }
+        } else {
+          console.log("⚠️  ADMIN_EMAIL or ADMIN_PASSWORD not provided in environment. Skipping admin creation.");
         }
       } catch (seedErr) {
         console.error("❌ Error seeding admin:", seedErr.message);
