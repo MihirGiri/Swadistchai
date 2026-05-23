@@ -33,31 +33,30 @@ export default function Checkout() {
  const shipping = isFreeShipping ? 0 : (deliverySettings?.deliveryFee || 49);
  const orderTotal = cartTotal + shipping;
 
- const fetchPincodeDetails = async (pincode) => {
- setPinLoading(true);
- try {
- const response = await fetch(
- `https://api.postalpincode.in/pincode/${pincode}`,
- );
- const data = await response.json();
-
- if (data && data[0] && data[0].Status === "Success") {
- const postOffice = data[0].PostOffice[0];
- setFormData((prev) => ({
- ...prev,
- city: postOffice.District,
- state: postOffice.State,
- }));
- toast({ message: "City and State auto-filled!", type: "success" });
- } else {
- toast({ message: "Invalid PIN Code.", type: "error" });
- }
- } catch (err) {
- console.error("Error fetching pincode details:", err);
- } finally {
- setPinLoading(false);
- }
- };
+  const fetchPincodeDetails = async (pincode) => {
+    setPinLoading(true);
+    try {
+      const response = await fetch(`https://api.zippopotam.us/in/${pincode}`);
+      if (response.ok) {
+        const data = await response.json();
+        const place = data.places[0];
+        // Zippopotamus provides 'state' and 'place name' (which we use as city/area)
+        setFormData((prev) => ({
+          ...prev,
+          city: place["place name"] || place.state,
+          state: place.state,
+        }));
+        toast({ message: "City and State auto-filled!", type: "success" });
+      } else {
+        toast({ message: "Invalid PIN Code.", type: "error" });
+      }
+    } catch (err) {
+      console.error("Error fetching pincode details:", err);
+      // Fallback silently if API fails
+    } finally {
+      setPinLoading(false);
+    }
+  };
 
  const handleInputChange = (e) => {
  const { name, value } = e.target;
