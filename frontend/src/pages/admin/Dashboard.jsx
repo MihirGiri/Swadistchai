@@ -55,7 +55,7 @@ export default function AdminDashboard() {
  const fetchProducts = async () => {
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`,
+ `${import.meta.env.VITE_API_URL}/products`,
  );
  const data = await response.json();
  if (data.success) {
@@ -120,8 +120,8 @@ export default function AdminDashboard() {
  try {
  const method = editingProduct ? "PUT" : "POST";
  const url = editingProduct
- ? `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${editingProduct._id}`
- : `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`;
+ ? `${import.meta.env.VITE_API_URL}/products/${editingProduct._id}`
+ : `${import.meta.env.VITE_API_URL}/products`;
 
  const response = await fetch(url, {
  method,
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
 
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${productId}`,
+ `${import.meta.env.VITE_API_URL}/products/${productId}`,
  {
  method: "DELETE",
  headers: {
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
  formDataObj.append("image", file);
 
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/upload/image`,
+ `${import.meta.env.VITE_API_URL}/products/upload/image`,
  {
  method: "POST",
  headers: {

@@ -70,7 +70,7 @@ export default function ProductCard({ product, index = 0 }) {
     setIsWishlisted(!isWishlisted);
 
     try {
-      const baseUrl = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
+      const baseUrl = `${import.meta.env.VITE_API_URL}/wishlist`;
       const url = !isWishlisted ? `${baseUrl}/add/${productId}` : `${baseUrl}/remove/${productId}`;
       
       const response = await fetch(url, {

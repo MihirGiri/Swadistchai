@@ -18,7 +18,7 @@ export default function Wishlist() {
  const fetchWishlist = async () => {
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`,
+ `${import.meta.env.VITE_API_URL}/wishlist`,
  {
  headers: {
  Authorization: `Bearer ${token}`,

@@ -81,7 +81,7 @@ const getImageUrl = (imagePath) => {
     setIsWishlisted(!isWishlisted);
 
     try {
-      const baseUrl = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/wishlist`;
+      const baseUrl = `${import.meta.env.VITE_API_URL}/wishlist`;
       const url = !isWishlisted ? `${baseUrl}/add/${id}` : `${baseUrl}/remove/${id}`;
       
       const response = await fetch(url, {
@@ -112,7 +112,7 @@ const getImageUrl = (imagePath) => {
  try {
  setLoading(true);
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products`,
+ `${import.meta.env.VITE_API_URL}/products`,
  );
  const data = await response.json();
  if (data.success && data.products) {
@@ -147,7 +147,7 @@ const getImageUrl = (imagePath) => {
    
    try {
      const response = await fetch(
-       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${id}/reviews`,
+       `${import.meta.env.VITE_API_URL}/products/${id}/reviews`,
        {
          method: "POST",
          headers: {

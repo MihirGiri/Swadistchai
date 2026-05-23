@@ -36,7 +36,7 @@ export default function ManageReviews() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/admin/reviews/pending`,
+        `${import.meta.env.VITE_API_URL}/products/admin/reviews/pending`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await response.json();
@@ -52,7 +52,7 @@ export default function ManageReviews() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews/admin/pending`,
+        `${import.meta.env.VITE_API_URL}/site-reviews/admin/pending`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await response.json();
@@ -67,7 +67,7 @@ export default function ManageReviews() {
   const handleUpdateProductReview = async (productId, reviewId, status) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${productId}/reviews/${reviewId}`,
+        `${import.meta.env.VITE_API_URL}/products/${productId}/reviews/${reviewId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -92,7 +92,7 @@ export default function ManageReviews() {
   const handleUpdateSiteReview = async (reviewId, status) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews/admin/${reviewId}/status`,
+        `${import.meta.env.VITE_API_URL}/site-reviews/admin/${reviewId}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

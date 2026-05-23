@@ -21,7 +21,7 @@ export default function Profile() {
     const fetchSiteReview = async () => {
       if (!token) return;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews/me`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/site-reviews/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -46,8 +46,8 @@ export default function Profile() {
     try {
       const method = hasExistingReview ? "PUT" : "POST";
       const url = hasExistingReview 
-        ? `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews/me`
-        : `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews`;
+        ? `${import.meta.env.VITE_API_URL}/site-reviews/me`
+        : `${import.meta.env.VITE_API_URL}/site-reviews`;
 
       const response = await fetch(url, {
         method,
@@ -75,7 +75,7 @@ export default function Profile() {
     if (!window.confirm("Are you sure you want to delete your website review?")) return;
     setSubmittingReview(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/site-reviews/me`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/site-reviews/me`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });

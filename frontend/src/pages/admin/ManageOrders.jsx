@@ -49,8 +49,8 @@ export default function ManageOrders() {
  setLoading(true);
  const url =
  statusFilter === "all"
- ? `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders`
- : `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders?status=${statusFilter}`;
+ ? `${import.meta.env.VITE_API_URL}/orders`
+ : `${import.meta.env.VITE_API_URL}/orders?status=${statusFilter}`;
 
  const response = await fetch(url, {
  headers: {
@@ -92,7 +92,7 @@ export default function ManageOrders() {
 
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders/${selectedOrder._id}/status`,
+ `${import.meta.env.VITE_API_URL}/orders/${selectedOrder._id}/status`,
  {
  method: "PUT",
  headers: {
@@ -127,7 +127,7 @@ export default function ManageOrders() {
 
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders/${orderId}`,
+ `${import.meta.env.VITE_API_URL}/orders/${orderId}`,
  {
  method: "DELETE",
  headers: {

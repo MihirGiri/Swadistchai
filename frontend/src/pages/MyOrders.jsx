@@ -34,7 +34,7 @@ export default function MyOrders() {
  if (!token) return;
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders/user/my-orders`,
+ `${import.meta.env.VITE_API_URL}/orders/user/my-orders`,
  {
  headers: {
  Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export default function MyOrders() {
  const fetchReviews = async () => {
    if (!token) return;
    try {
-     const res = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/user/reviews`, {
+     const res = await fetch(`${import.meta.env.VITE_API_URL}/products/user/reviews`, {
        headers: { Authorization: `Bearer ${token}` }
      });
      const data = await res.json();
@@ -78,7 +78,7 @@ export default function MyOrders() {
  if (!window.confirm("Are you sure you want to cancel this order?")) return;
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders/${orderId}/cancel`,
+ `${import.meta.env.VITE_API_URL}/orders/${orderId}/cancel`,
  {
  method: "PUT",
  headers: {
@@ -146,7 +146,7 @@ export default function MyOrders() {
    try {
      const method = isEditingReview ? "PUT" : "POST";
      const response = await fetch(
-       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${selectedProduct.id}/reviews`,
+       `${import.meta.env.VITE_API_URL}/products/${selectedProduct.id}/reviews`,
        {
          method,
          headers: {
@@ -182,7 +182,7 @@ export default function MyOrders() {
    setSubmittingReview(true);
    try {
      const response = await fetch(
-       `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/products/${selectedProduct.id}/reviews`,
+       `${import.meta.env.VITE_API_URL}/products/${selectedProduct.id}/reviews`,
        {
          method: "DELETE",
          headers: { Authorization: `Bearer ${token}` }

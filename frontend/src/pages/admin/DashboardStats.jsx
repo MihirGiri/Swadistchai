@@ -57,7 +57,7 @@ export default function DashboardStats() {
  try {
  setLoading(true);
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/stats`,
+ `${import.meta.env.VITE_API_URL}/stats`,
  {
  headers: {
  Authorization: `Bearer ${token}`,

@@ -14,7 +14,7 @@ export function CartProvider({ children }) {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/settings/delivery`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/settings/delivery`);
         const data = await response.json();
         if (data.success && data.settings) {
           setDeliverySettings({

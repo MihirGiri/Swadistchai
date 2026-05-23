@@ -41,7 +41,7 @@ export default function ManageCustomers() {
  try {
  setLoading(true);
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers?sort=${sortBy}`,
+ `${import.meta.env.VITE_API_URL}/customers?sort=${sortBy}`,
  {
  headers: {
  Authorization: `Bearer ${token}`,
@@ -89,7 +89,7 @@ export default function ManageCustomers() {
 
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers/${selectedCustomer._id}`,
+ `${import.meta.env.VITE_API_URL}/customers/${selectedCustomer._id}`,
  {
  method: "PUT",
  headers: {
@@ -132,7 +132,7 @@ export default function ManageCustomers() {
 
  try {
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/customers/${customerId}`,
+ `${import.meta.env.VITE_API_URL}/customers/${customerId}`,
  {
  method: "DELETE",
  headers: {

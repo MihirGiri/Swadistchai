@@ -135,7 +135,7 @@ export default function Checkout() {
  };
 
  const response = await fetch(
- `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}/orders`,
+ `${import.meta.env.VITE_API_URL}/orders`,
  {
  method: "POST",
  headers: {

@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = `${import.meta.env.VITE_API_URL || "https://swadistchai-backend.onrender.com/api"}`;
+  const API_URL = `${import.meta.env.VITE_API_URL}`;
 
   // Restore user on app load
   useEffect(() => {
