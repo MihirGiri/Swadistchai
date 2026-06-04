@@ -411,7 +411,7 @@ export default function Footer() {
               </Link>
             </div>
             <span className="text-xs" style={{ color: FOOTER_MUTED }}>
-              Designed & Developed by Mihir Giri😊
+              Build with ❤️
             </span>
           </div>
         </div>
